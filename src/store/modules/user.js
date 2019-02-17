@@ -50,7 +50,7 @@ const user = {
           } else {
             reject('getInfo: roles must be a non-null array !')
           }
-          commit('SET_NAME', data.name)
+          commit('SET_NAME', data.userName)
           commit('SET_AVATAR', data.avatar)
           resolve(response)
         }).catch(error => {
@@ -80,7 +80,21 @@ const user = {
         removeToken()
         resolve()
       })
-    }
+    },
+
+    // 登出
+    LogOut({ commit, state }) {
+      return new Promise((resolve, reject) => {
+        logout(state.token).then(() => {
+          commit('SET_TOKEN', '')
+          commit('SET_ROLES', [])
+          removeToken()
+          resolve()
+        }).catch(error => {
+          reject(error)
+        })
+      })
+    },
   }
 }
 
