@@ -1,25 +1,25 @@
 <template>
   <div class="app-container">
     <div class="filter-container" style="margin-bottom: 20px">
-      <!--<el-input :placeholder="" v-model="listQuery.title" style="width: 200px;" class="filter-item" @keyup.enter.native="handleFilter"/>-->
-      <el-select v-model="listQuery.importance" placeholder="广告位" clearable style="width: 90px" class="filter-item">
-        <el-option v-for="item in importanceOptions" :key="item" :label="item" :value="item"/>
+      <el-select v-model="listQuery.pmediaid" placeholder="平台媒体" clearable style="width: 90px" class="filter-item">
+        <el-option v-for="item in pmediaOptions" :key="item.key" :label="item.display_name" :value="item.key"/>
       </el-select>
-      <el-select v-model="listQuery.importance" placeholder="展示形式" clearable style="width: 90px" class="filter-item">
-        <el-option v-for="item in importanceOptions" :key="item" :label="item" :value="item"/>
+      <el-input placeholder="广告位id" v-model="listQuery.adplacementid" style="width: 100px;" class="filter-item" @keyup.enter.native="handleFilter"/>
+      <el-select v-model="listQuery.type" placeholder="广告位类型" clearable style="width: 90px" class="filter-item">
+        <el-option v-for="item in typeOptions" :key="item.key" :label="item.display_name" :value="item.key"/>
       </el-select>
-      <el-select v-model="listQuery.importance" placeholder="渠道" clearable style="width: 90px" class="filter-item">
-        <el-option v-for="item in importanceOptions" :key="item" :label="item" :value="item"/>
+      <el-select v-model="listQuery.platform" placeholder="渠道" clearable style="width: 90px" class="filter-item">
+        <el-option v-for="item in platformOptions" :key="item.key" :label="item.display_name" :value="item.key"/>
       </el-select>
-      <el-select v-model="listQuery.importance" placeholder="广告位类型" clearable style="width: 90px" class="filter-item">
-        <el-option v-for="item in importanceOptions" :key="item" :label="item" :value="item"/>
+      <el-select v-model="listQuery.typedeclare" placeholder="广告类型" clearable style="width: 90px" class="filter-item">
+        <el-option v-for="item in typedeclareOptions" :key="item.key" :label="item.display_name" :value="item.key"/>
       </el-select>
-      <el-select v-model="listQuery.importance" placeholder="状态" clearable style="width: 90px" class="filter-item">
-        <el-option v-for="item in importanceOptions" :key="item" :label="item" :value="item"/>
+      <el-select v-model="listQuery.status" placeholder="状态" clearable style="width: 90px" class="filter-item">
+        <el-option v-for="item in statusOptions" :key="item.key" :label="item.display_name" :value="item.key"/>
       </el-select>
       <el-button v-waves class="filter-item" type="primary" icon="el-icon-search" @click="handleFilter">搜索</el-button>
-      <el-button class="filter-item" style="margin-left: 10px;" type="primary" icon="el-icon-edit" @click="handleCreate">手动获取广告位</el-button>
-      <el-button v-waves :loading="downloadLoading" class="filter-item" type="primary" icon="el-icon-download" @click="handleDownload">导出</el-button>
+      <el-button class="filter-item" style="margin-left: 10px;" type="primary" icon="el-icon-edit" @click="handleSync">手动获取广告位</el-button>
+      <el-button v-waves :loading="downloadLoading" class="filter-item" type="primary" icon="el-icon-download" @click="handleDownload" :disabled="buttonDisabled">导出</el-button>
     </div>
 
     <el-table
@@ -31,13 +31,20 @@
       highlight-current-row
       style="width: 100%;"
       @sort-change="sortChange">
+
+      <el-table-column label="平台媒体" prop="id" sortable="custom" align="center" width="120">
+        <template slot-scope="scope">
+          <span>{{ scope.row.pmediaStr }}</span>
+        </template>
+      </el-table-column>
+
       <el-table-column label="广告位ID" prop="id" sortable="custom" align="center" width="120">
         <template slot-scope="scope">
           <span>{{ scope.row.adplacementid }}</span>
         </template>
       </el-table-column>
 
-      <el-table-column label="广告位名称" prop="id" sortable="custom" align="center" width="120">
+      <el-table-column label="广告位名称" prop="id" sortable="custom" align="center" width="200">
         <template slot-scope="scope">
           <span>{{ scope.row.adplacementname }}</span>
         </template>
@@ -49,37 +56,37 @@
         </template>
       </el-table-column>
 
-      <el-table-column label="展现形式" prop="id" sortable="custom" align="center" width="120">
+      <el-table-column label="广告位类型" prop="id" sortable="custom" align="center" width="120">
         <template slot-scope="scope">
-          <span>{{ scope.row.type }}</span>
+          <span>{{ scope.row.typeStr }}</span>
         </template>
       </el-table-column>
 
       <el-table-column label="渠道" prop="id" sortable="custom" align="center" width="120">
         <template slot-scope="scope">
-          <span>{{ scope.row.platform }}</span>
+          <span>{{ scope.row.platformStr }}</span>
         </template>
       </el-table-column>
 
-      <el-table-column label="广告位类型" prop="id" sortable="custom" align="center" width="100">
+      <el-table-column label="广告类型" prop="id" sortable="custom" align="center" width="120">
         <template slot-scope="scope">
-          <span>{{ scope.row.typedeclare }}</span>
+          <span>{{ scope.row.typedeclareStr }}</span>
         </template>
       </el-table-column>
 
-      <el-table-column label="广告位尺寸" prop="id" sortable="custom" align="center" width="100">
+      <el-table-column label="广告位尺寸" prop="id" sortable="custom" align="center" width="120">
         <template slot-scope="scope">
           <span>{{ scope.row.size }}</span>
         </template>
       </el-table-column>
 
-      <el-table-column label="广告位低价" prop="id" sortable="custom" align="center" width="100">
+      <el-table-column label="广告位低价" prop="id" sortable="custom" align="center" width="120">
         <template slot-scope="scope">
           <span>{{ scope.row.bidfloor }}</span>
         </template>
       </el-table-column>
 
-      <el-table-column label="允许素材类型" prop="id" sortable="custom" align="center" width="100">
+      <el-table-column label="允许素材类型" prop="id" sortable="custom" align="center" width="150">
         <template slot-scope="scope">
           <span>{{ scope.row.allowmaterial }}</span>
         </template>
@@ -87,24 +94,25 @@
 
       <el-table-column label="状态" prop="id" sortable="custom" align="center" width="100">
         <template slot-scope="scope">
-          <span>{{ scope.row.status }}</span>
+          <span>{{ scope.row.statusStr }}</span>
         </template>
       </el-table-column>
 
       <el-table-column label="操作" align="center" width="150" class-name="small-padding fixed-width">
         <template slot-scope="scope">
-          <el-button type="primary" size="mini" @click="handleUpdate(scope.row)">上传素材</el-button>
+          <el-button type="primary" size="mini" @click="handleUpdate(scope.row)" :disabled="buttonDisabled">上传素材</el-button>
         </template>
       </el-table-column>
     </el-table>
 
     <pagination v-show="total>0" :total="total" :page.sync="listQuery.page" :limit.sync="listQuery.limit" @pagination="getList" />
 
-
   </div>
 </template>
 
 <script>
+  import { fetchList, sync } from '@/api/dsp/adplacement'
+  import { Message } from 'element-ui'
   import waves from '@/directive/waves' // Waves directive
   import { parseTime } from '@/utils'
   import Pagination from '@/components/Pagination' // Secondary package based on el-pagination
@@ -114,6 +122,34 @@
     { key: 'US', display_name: 'USA' },
     { key: 'JP', display_name: 'Japan' },
     { key: 'EU', display_name: 'Eurozone' }
+  ]
+
+  const pmediaOptions = [
+    { key: 1, display_name: '软告' }
+  ]
+
+  const platformOptions = [
+    { key: 1, display_name: 'pc' },
+    { key: 2, display_name: '移动' }
+  ]
+
+  const typedeclareOptions = [
+    { key: 0, display_name: '单图' },
+    { key: 1, display_name: '一图一文' },
+    { key: 2, display_name: '一图二文' }
+  ]
+
+  const typeOptions = [
+    { key: 13, display_name: 'banner' },
+    { key: 14, display_name: '原生' },
+    { key: 15, display_name: '视频贴片' }
+  ]
+
+  const statusOptions = [
+    { key: 1, display_name: '初始化' },
+    { key: 2, display_name: '已上传素材' },
+    { key: 3, display_name: '已竞价' },
+    { key: 4, display_name: '已回调' }
   ]
 
   // arr to obj ,such as { CN : "China", US : "USA" }
@@ -142,128 +178,7 @@
     data() {
       return {
         tableKey: 0,
-        list: [
-          {
-            "adplacementid": 1000338,
-            "adplacementname": "百度视频_5秒前贴_iphone",
-            "medianame": "百度视频",
-            "type": "banner",
-            "platform": "pc",
-            "size": "640*360",
-            "bidfloor": 510,
-            "typedeclare": "一图一文",
-            "allowmaterial": "jpg",
-            "status": "初始化"
-          },
-          {
-            "adplacementid": 1000339,
-            "adplacementname": "百度视频_5秒前贴_iphone",
-            "medianame": "百度视频",
-            "type": "banner",
-            "platform": "pc",
-            "size": "640*360",
-            "bidfloor": 510,
-            "typedeclare": "一图一文",
-            "allowmaterial": "jpg",
-            "status": "已上传素材"
-          },
-          {
-            "adplacementid": 1000340,
-            "adplacementname": "百度视频_5秒前贴_iphone",
-            "medianame": "百度视频",
-            "type": "banner",
-            "platform": "pc",
-            "size": "640*360",
-            "bidfloor": 510,
-            "typedeclare": "一图一文",
-            "allowmaterial": "jpg",
-            "status": "已竞价"
-          },
-          {
-            "adplacementid": 1000340,
-            "adplacementname": "百度视频_5秒前贴_iphone",
-            "medianame": "百度视频",
-            "type": "banner",
-            "platform": "pc",
-            "size": "640*360",
-            "bidfloor": 510,
-            "typedeclare": "一图一文",
-            "allowmaterial": "jpg",
-            "status": "已回调"
-          },
-          {
-            "adplacementid": 1000340,
-            "adplacementname": "百度视频_5秒前贴_iphone",
-            "medianame": "百度视频",
-            "type": "banner",
-            "platform": "pc",
-            "size": "640*360",
-            "bidfloor": 510,
-            "typedeclare": "一图一文",
-            "allowmaterial": "jpg",
-            "status": "初始化"
-          }
-          // {
-          //   "adplacementid": 1000340,
-          //   "adplacementname": "百度视频_5秒前贴_iphone",
-          //   "medianame": "百度视频",
-          //   "type": "banner",
-          //   "platform": "pc",
-          //   "size": "640*360",
-          //   "bidfloor": 510,
-          //   "typedeclare": "一图一文",
-          //   "allowmaterial": "jpg",
-          //   "status": "初始化"
-          // },
-          // {
-          //   "adplacementid": 1000340,
-          //   "adplacementname": "百度视频_5秒前贴_iphone",
-          //   "medianame": "百度视频",
-          //   "type": "banner",
-          //   "platform": "pc",
-          //   "size": "640*360",
-          //   "bidfloor": 510,
-          //   "typedeclare": "一图一文",
-          //   "allowmaterial": "jpg",
-          //   "status": "初始化"
-          // },
-          // {
-          //   "adplacementid": 1000340,
-          //   "adplacementname": "百度视频_5秒前贴_iphone",
-          //   "medianame": "百度视频",
-          //   "type": "banner",
-          //   "platform": "pc",
-          //   "size": "640*360",
-          //   "bidfloor": 510,
-          //   "typedeclare": "一图一文",
-          //   "allowmaterial": "jpg",
-          //   "status": "初始化"
-          // },
-          // {
-          //   "adplacementid": 1000340,
-          //   "adplacementname": "百度视频_5秒前贴_iphone",
-          //   "medianame": "百度视频",
-          //   "type": "banner",
-          //   "platform": "pc",
-          //   "size": "640*360",
-          //   "bidfloor": 510,
-          //   "typedeclare": "一图一文",
-          //   "allowmaterial": "jpg",
-          //   "status": "初始化"
-          // },
-          // {
-          //   "adplacementid": 1000340,
-          //   "adplacementname": "百度视频_5秒前贴_iphone",
-          //   "medianame": "百度视频",
-          //   "type": "banner",
-          //   "platform": "pc",
-          //   "size": "640*360",
-          //   "bidfloor": 510,
-          //   "typedeclare": "一图一文",
-          //   "allowmaterial": "jpg",
-          //   "status": "初始化"
-          // }
-        ],
+        list: [],
         total: 10,
         listLoading: true,
         listQuery: {
@@ -276,8 +191,12 @@
         },
         importanceOptions: [1, 2, 3],
         calendarTypeOptions,
+        pmediaOptions,
+        platformOptions,
+        typedeclareOptions,
+        typeOptions,
+        statusOptions,
         sortOptions: [{ label: 'ID Ascending', key: '+id' }, { label: 'ID Descending', key: '-id' }],
-        statusOptions: ['published', 'draft', 'deleted'],
         showReviewer: false,
         temp: {
           id: undefined,
@@ -301,7 +220,8 @@
           timestamp: [{ type: 'date', required: true, message: 'timestamp is required', trigger: 'change' }],
           title: [{ required: true, message: 'title is required', trigger: 'blur' }]
         },
-        downloadLoading: false
+        downloadLoading: false,
+        buttonDisabled: true
       }
     },
     created() {
@@ -309,16 +229,19 @@
     },
     methods: {
       getList() {
-        this.listLoading = false
-        // fetchList(this.listQuery).then(response => {
-        //   this.list = response.data.items
-        //   this.total = response.data.total
-        //
-        //   // Just to simulate the time of the request
-        //   setTimeout(() => {
-        //     this.listLoading = false
-        //   }, 1.5 * 1000)
-        // })
+        this.listLoading = true
+        if (this.listQuery.adplacementid === '') {
+            this.listQuery.adplacementid = null
+        }
+        fetchList(this.listQuery).then(response => {
+          this.list = response.data.list
+          this.total = response.data.total
+
+          // Just to simulate the time of the request
+          setTimeout(() => {
+            this.listLoading = false
+          }, 0.5 * 1000)
+        })
       },
       handleFilter() {
         this.listQuery.page = 1
@@ -356,12 +279,21 @@
           type: ''
         }
       },
-      handleCreate() {
-        this.resetTemp()
-        this.dialogStatus = 'create'
-        this.dialogFormVisible = true
-        this.$nextTick(() => {
-          this.$refs['dataForm'].clearValidate()
+      handleSync() {
+        // this.resetTemp()
+        // this.dialogStatus = 'create'
+        // this.dialogFormVisible = true
+        // this.$nextTick(() => {
+        //   this.$refs['dataForm'].clearValidate()
+        // })
+        this.listLoading = true
+        sync().then(response => {
+          Message({
+            message: response.data,
+            type: 'success',
+            duration: 1000
+          })
+          this.getList()
         })
       },
       createData() {

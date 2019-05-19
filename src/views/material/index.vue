@@ -1,19 +1,14 @@
 <template>
   <div class="app-container">
     <div class="filter-container" style="margin-bottom: 20px">
-      <!--<el-input :placeholder="" v-model="listQuery.title" style="width: 200px;" class="filter-item" @keyup.enter.native="handleFilter"/>-->
-      <el-select v-model="listQuery.importance" placeholder="广告位" clearable style="width: 90px" class="filter-item">
-        <el-option v-for="item in importanceOptions" :key="item" :label="item" :value="item"/>
+      <el-select v-model="listQuery.pmediaid" placeholder="平台媒体" clearable style="width: 90px" class="filter-item">
+        <el-option v-for="item in pmediaOptions" :key="item.key" :label="item.display_name" :value="item.key"/>
       </el-select>
-      <el-select v-model="listQuery.importance" placeholder="创意ID" clearable style="width: 90px" class="filter-item">
-        <el-option v-for="item in importanceOptions" :key="item" :label="item" :value="item"/>
-      </el-select>
-      <el-select v-model="listQuery.importance" placeholder="素材类型" clearable style="width: 90px" class="filter-item">
-        <el-option v-for="item in importanceOptions" :key="item" :label="item" :value="item"/>
-      </el-select>
+      <el-input placeholder="广告位id" v-model="listQuery.adplacementid" style="width: 100px;" class="filter-item" @keyup.enter.native="handleFilter"/>
+      <el-input placeholder="创意ID" v-model="listQuery.crid" style="width: 100px;" class="filter-item" @keyup.enter.native="handleFilter"/>
       <el-button v-waves class="filter-item" type="primary" icon="el-icon-search" @click="handleFilter">搜索</el-button>
       <!--<el-button class="filter-item" style="margin-left: 10px;" type="primary" icon="el-icon-edit" @click="handleCreate">手动获取广告位</el-button>-->
-      <el-button v-waves :loading="downloadLoading" class="filter-item" type="primary" icon="el-icon-download" @click="handleDownload">导出</el-button>
+      <el-button v-waves :loading="downloadLoading" class="filter-item" type="primary" icon="el-icon-download" @click="handleDownload" :disabled="buttonDisabled">导出</el-button>
     </div>
 
     <el-table
@@ -30,9 +25,19 @@
           <span>{{ scope.row.id }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="广告位" prop="id" sortable="custom" align="center" width="200">
+      <el-table-column label="平台媒体" prop="id" sortable="custom" align="center" width="120">
         <template slot-scope="scope">
-          <span style="color: #1a0dab">{{ scope.row.adplacementid }}</span>
+          <span>{{ scope.row.pmediaStr }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="广告位id" prop="id" sortable="custom" align="center" width="120">
+        <template slot-scope="scope">
+          <span>{{ scope.row.adplacementid }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="广告位名称" prop="id" sortable="custom" align="center" width="200">
+        <template slot-scope="scope">
+          <span>{{ scope.row.adplacementname }}</span>
         </template>
       </el-table-column>
 
@@ -68,7 +73,7 @@
 
       <el-table-column label="操作" align="center" width="150" class-name="small-padding fixed-width">
         <template slot-scope="scope">
-          <el-button type="primary" size="mini" @click="handleUpdate(scope.row)">修改</el-button>
+          <el-button type="primary" size="mini" @click="handleUpdate(scope.row)" :disabled="buttonDisabled">修改</el-button>
         </template>
       </el-table-column>
 
@@ -81,6 +86,8 @@
 </template>
 
 <script>
+  import { fetchList } from '@/api/dsp/material'
+  import { Message } from 'element-ui'
   import waves from '@/directive/waves' // Waves directive
   import { parseTime } from '@/utils'
   import Pagination from '@/components/Pagination' // Secondary package based on el-pagination
@@ -90,6 +97,10 @@
     { key: 'US', display_name: 'USA' },
     { key: 'JP', display_name: 'Japan' },
     { key: 'EU', display_name: 'Eurozone' }
+  ]
+
+  const pmediaOptions = [
+    { key: 1, display_name: '软告' }
   ]
 
   // arr to obj ,such as { CN : "China", US : "USA" }
@@ -118,43 +129,7 @@
     data() {
       return {
         tableKey: 0,
-        list: [
-          {
-            "id": 1,
-            "adplacementid": "百度视频_5秒前贴_iphone",
-            "price": 100.00,
-            "crid": "a1001",
-            "adtype": "H5"
-          },
-          {
-            "id": 2,
-            "adplacementid": "百度视频_5秒前贴_iphone",
-            "price": 100.00,
-            "crid": "a1001",
-            "adtype": "H5"
-          },
-          {
-            "id": 3,
-            "adplacementid": "百度视频_5秒前贴_iphone",
-            "price": 100.00,
-            "crid": "a1001",
-            "adtype": "H5"
-          },
-          {
-            "id": 4,
-            "adplacementid": "百度视频_5秒前贴_iphone",
-            "price": 100.00,
-            "crid": "a1001",
-            "adtype": "H5"
-          },
-          {
-            "id": 5,
-            "adplacementid": "百度视频_5秒前贴_iphone",
-            "price": 100.00,
-            "crid": "a1001",
-            "adtype": "H5"
-          }
-        ],
+        list: [],
         total: 10,
         listLoading: true,
         listQuery: {
@@ -167,6 +142,7 @@
         },
         importanceOptions: [1, 2, 3],
         calendarTypeOptions,
+        pmediaOptions,
         sortOptions: [{ label: 'ID Ascending', key: '+id' }, { label: 'ID Descending', key: '-id' }],
         statusOptions: ['published', 'draft', 'deleted'],
         showReviewer: false,
@@ -192,7 +168,8 @@
           timestamp: [{ type: 'date', required: true, message: 'timestamp is required', trigger: 'change' }],
           title: [{ required: true, message: 'title is required', trigger: 'blur' }]
         },
-        downloadLoading: false
+        downloadLoading: false,
+        buttonDisabled: true
       }
     },
     created() {
@@ -201,15 +178,22 @@
     methods: {
       getList() {
         this.listLoading = false
-        // fetchList(this.listQuery).then(response => {
-        //   this.list = response.data.items
-        //   this.total = response.data.total
-        //
-        //   // Just to simulate the time of the request
-        //   setTimeout(() => {
-        //     this.listLoading = false
-        //   }, 1.5 * 1000)
-        // })
+        if (this.listQuery.adplacementid === '') {
+          this.listQuery.adplacementid = null
+        }
+        if (this.listQuery.crid === '') {
+          this.listQuery.crid = null
+        }
+
+        fetchList(this.listQuery).then(response => {
+          this.list = response.data.list
+          this.total = response.data.total
+
+          // Just to simulate the time of the request
+          setTimeout(() => {
+            this.listLoading = false
+          }, 0.5 * 1000)
+        });
       },
       handleFilter() {
         this.listQuery.page = 1
