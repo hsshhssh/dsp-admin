@@ -39,7 +39,37 @@ export const constantRouterMap = [
     }]
   },
 
-  { path: '*', redirect: '/404', hidden: true }
+  { path: '*', redirect: '/404', hidden: true },
+
+  // 广告位
+  {
+    path: '/adplacement',
+    component: Layout,
+    redirect: 'adplacement/index',
+    children: [
+      {
+        path: 'index',
+        component: () => import('@/views/adplacement/index'),
+        name: '广告位',
+        meta: { title: '广告位', icon: 'adplacement', noCache: true}
+      }
+    ]
+  },
+
+  // 素材
+  {
+    path: '/material',
+    component: Layout,
+    redirect: 'material/index',
+    children: [
+      {
+        path: 'index',
+        component: () => import('@/views/material/index'),
+        name: '素材',
+        meta: { title: '素材', icon: 'adplacement', noCache: true}
+      }
+    ]
+  }
 ]
 
 export default new Router({
@@ -47,3 +77,25 @@ export default new Router({
   scrollBehavior: () => ({ y: 0 }),
   routes: constantRouterMap
 })
+
+// export const asyncRouterMap = [
+//   // 广告位
+//   {
+//     path: '/adplacement',
+//     component: Layout,
+//     redirect: 'adplacement/index',
+//     meta: {
+//       roles: ['editor'] // you can set roles in root nav
+//     },
+//     children: [
+//       {
+//         path: 'index',
+//         component: () => import('@/views/adplacement/index'),
+//         name: '广告位',
+//         meta: { title: '广告位', icon: 'adplacement', noCache: true}
+//       }
+//     ]
+//   }
+// ]
+
+
