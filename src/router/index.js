@@ -67,6 +67,13 @@ export const constantRouterMap = [
         component: () => import('@/views/material/index'),
         name: '素材',
         meta: { title: '素材', icon: 'adplacement', noCache: true}
+      },
+      {
+        path: 'edit',
+        component: () => import('@/views/material/edit'),
+        name: '编辑素材',
+        meta: { title: '编辑素材', icon: 'adplacement', noCache: true},
+        hidden: true
       }
     ]
   }

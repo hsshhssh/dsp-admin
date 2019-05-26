@@ -1,0 +1,252 @@
+<template>
+  <div class="app-container">
+    <el-form ref="postForm" :model="temp" :rules="rules" label-position="right" label-width="120px">
+      <el-form-item label="平台广告id">
+        <el-input v-model="temp.padplacementid" :disabled="true"/>
+      </el-form-item>
+      <el-form-item label="平台媒体">
+        <el-input v-model="temp.pmediaStr" :disabled="true"/>
+      </el-form-item>
+      <el-form-item label="广告位id">
+        <el-input v-model="temp.adplacementid" :disabled="true"/>
+      </el-form-item>
+      <el-form-item label="广告位">
+        <el-input v-model="temp.adplacementname" :disabled="true"/>
+      </el-form-item>
+
+      <el-form-item label="价格">
+        <el-input v-model="temp.price"/>
+      </el-form-item>
+      <el-form-item label="创意id">
+        <el-input v-model="temp.crid"/>
+      </el-form-item>
+      <el-form-item label="素材类型">
+        <el-input v-model="temp.adType"/>
+      </el-form-item>
+      <!--ext暂时忽略-->
+      <el-form-item label="扩展字段" v-if="false">
+        <el-input v-model="temp.ext"/>
+      </el-form-item>
+
+      <!--adm-->
+      <el-form-item label="dsp段素材id">
+        <el-input v-model="temp.adm.adId"/>
+      </el-form-item>
+      <el-form-item label="dsp段素材url">
+        <el-upload
+        class="upload-demo"
+        :action="uploadApi"
+        :on-preview="handlePreview"
+        :on-remove="handleRemove"
+        :before-remove="beforeRemove"
+        multiple
+        :limit="1"
+        :on-exceed="handleExceed"
+        :file-list="fileList"
+        :on-success="handleUploadSucc">
+        <el-button size="small" type="primary">点击上传</el-button>
+        </el-upload>
+        <el-input v-model="temp.adm.materialUrl" :disabled="true"/>
+      </el-form-item>
+      <!--adm inner-->
+      <el-form-item label="跳转落地页地址">
+        <el-input v-model="temp.adm.inner.landingpage"/>
+      </el-form-item>
+      <el-form-item label="平台">
+        <el-radio-group v-model="temp.adm.inner.platform">
+          <el-radio :label="1">pc</el-radio>
+          <el-radio :label="2">移动</el-radio>
+        </el-radio-group>
+      </el-form-item>
+      <el-form-item label="物料类型">
+        <el-radio-group v-model="temp.adm.inner.materialtype">
+          <el-radio :label="0">图片</el-radio>
+          <el-radio :label="1">视频贴片</el-radio>
+          <el-radio :label="2">flash</el-radio>
+        </el-radio-group>
+      </el-form-item>
+
+      <el-collapse v-model="admType" style="margin-bottom: 30px">
+        <el-collapse-item name="1">
+          <template slot="title">
+            <strong style="font-size: 120%">PC </strong><i class="header-icon el-icon-info"></i>
+          </template>
+          <el-form-item label="广告标题">
+            <el-input v-model="temp.adm.inner.pc.title"/>
+          </el-form-item>
+          <el-form-item label="广告描述">
+            <el-input v-model="temp.adm.inner.pc.desc"/>
+          </el-form-item>
+        </el-collapse-item>
+        <el-collapse-item name="2">
+          <template slot="title">
+            <strong style="font-size: 120%">Mobile </strong><i class="header-icon el-icon-info"></i>
+          </template>
+          <el-form-item label="广告标题">
+            <el-input v-model="temp.adm.inner.mobile.title"/>
+          </el-form-item>
+          <el-form-item label="广告描述">
+            <el-input v-model="temp.adm.inner.mobile.desc"/>
+          </el-form-item>
+          <el-form-item label="APP应用名称">
+            <el-input v-model="temp.adm.inner.mobile.apkname"/>
+          </el-form-item>
+          <el-form-item label="包名">
+            <el-input v-model="temp.adm.inner.mobile.package"/>
+          </el-form-item>
+          <el-form-item label="APP唯一id号">
+            <el-input v-model="temp.adm.inner.mobile.appstoreid"/>
+          </el-form-item>
+          <el-form-item label="广告类型">
+            <el-radio-group v-model="temp.adm.inner.mobile.adtype">
+              <el-radio :label="0">普通广告</el-radio>
+              <el-radio :label="1">app下载</el-radio>
+            </el-radio-group>
+          </el-form-item>
+        </el-collapse-item>
+        <el-collapse-item name="3">
+          <template slot="title">
+            <strong style="font-size: 120%">Video </strong><i class="header-icon el-icon-info"></i>
+          </template>
+          <el-form-item label="播放时长">
+            <el-input v-model="temp.adm.inner.video.duration"/>
+          </el-form-item>
+          <el-form-item label="静态封面素材">
+            <el-input v-model="temp.adm.inner.video.coverimg"/>
+          </el-form-item>
+        </el-collapse-item>
+      </el-collapse>
+
+      <el-form-item label="素材宽度">
+        <el-input v-model="temp.adm.width"/>
+      </el-form-item>
+      <el-form-item label="素材高度">
+        <el-input v-model="temp.adm.height"/>
+      </el-form-item>
+      <el-form-item label="icon url">
+        <el-input v-model="temp.adm.iconurl"/>
+      </el-form-item>
+      <el-form-item label="按钮文字">
+        <el-input v-model="temp.adm.buttontext"/>
+      </el-form-item>
+      <el-form-item label="安装量">
+        <el-input v-model="temp.adm.installcount"/>
+      </el-form-item>
+      <el-form-item label="星级推荐">
+        <el-input v-model="temp.adm.starcount"/>
+      </el-form-item>
+      <el-form-item label="Deeplink url">
+        <el-input v-model="temp.adm.dplurl"/>
+      </el-form-item>
+
+      <el-form-item>
+        <el-button type="primary" @click="onSubmit">立即保存</el-button>
+        <el-button>取消</el-button>
+      </el-form-item>
+    </el-form>
+
+  </div>
+</template>
+
+<script>
+  import { getMaterial, saveMaterial } from '@/api/dsp/material'
+  import waves from '@/directive/waves' // Waves directive
+  import Pagination from '@/components/Pagination' // Secondary package based on el-pagination
+
+  export default {
+    name: 'ComplexTable',
+    components: { Pagination },
+    directives: { waves },
+    filters: {
+
+    },
+    data() {
+      return {
+        fileList: [],
+        rules: {
+        },
+        temp: {
+          title: "",
+          adm:{
+            materialUrl:"",
+            inner:{
+              pc:{},
+              mobile:{},
+              video:{}
+            }
+          }
+        },
+        admType: "",
+        uploadApi: process.env.BASE_API + "/dsp/upload"
+      }
+    },
+    created() {
+      this.getMaterial()
+    },
+    methods: {
+      getMaterial() {
+        var query = {
+          "padplacementid": this.$route.query.padplacementid
+        }
+        getMaterial(query).then(response => {
+          this.temp = response.data
+          if (this.temp.adm.materialUrl != undefined && this.temp.adm.materialUrl !== "") {
+            var arr = this.temp.adm.materialUrl.split("/")
+            this.fileList = [
+              {
+                name: arr[arr.length - 1],
+                url: this.temp.adm.materialUrl
+              }
+            ]
+          }
+          console.log(this.temp)
+        });
+      },
+      handleRemove() {
+        this.fileList = []
+        this.temp.adm.materialUrl = ""
+        this.temp.adm.inner.url = ""
+      },
+      handlePreview(file) {
+        console.log(file);
+      },
+      handleExceed() {
+        this.$message.warning(`当前限制选择 1 个文件`);
+      },
+      beforeRemove(file) {
+        return this.$confirm(`确定移除 ${ file.name }？`);
+      },
+      handleUploadSucc(res, file) {
+        if (res.code === '200') {
+          this.fileList = [
+            {
+              name: res.fileName,
+              url: res.fileUrl
+            }
+          ]
+          this.temp.adm.materialUrl = res.fileUrl;
+          this.temp.adm.inner.url = res.fileUrl;
+        } else {
+          return this.$confirm(`上传失败`);
+        }
+      },
+      onSubmit() {
+        saveMaterial(this.temp).then(response => {
+          this.$message.success(`${response.data}`)
+          this.getMaterial()
+        })
+      }
+    }
+  }
+</script>
+
+<style type="text/css">
+  .line_01{
+    padding: 0 20px 0;
+    margin: 20px 0;
+    line-height: 1px;
+    border-left: 200px solid #ddd;
+    border-right: 200px solid #ddd;
+    text-align: center;
+  }
+</style>

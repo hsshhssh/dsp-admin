@@ -61,19 +61,25 @@
 
       <el-table-column label="扩展字段" prop="id" sortable="custom" align="center" width="150">
         <template slot-scope="scope">
-          <a href="#" style="color: #1a0dab">点击查看</a>
+          <router-link :to="'/material/edit?padplacementid=' + scope.row.padplacementid">
+            <a href="#" style="color: #1a0dab">点击查看</a>
+          </router-link>
         </template>
       </el-table-column>
 
       <el-table-column label="adm" prop="id" sortable="custom" align="center" width="150">
         <template slot-scope="scope">
-          <a href="#" style="color: #1a0dab">点击查看</a>
+          <router-link :to="'/material/edit?padplacementid=' + scope.row.padplacementid">
+            <a href="#" style="color: #1a0dab">点击查看</a>
+          </router-link>
         </template>
       </el-table-column>
 
       <el-table-column label="操作" align="center" width="150" class-name="small-padding fixed-width">
         <template slot-scope="scope">
-          <el-button type="primary" size="mini" @click="handleUpdate(scope.row)" :disabled="buttonDisabled">修改</el-button>
+          <router-link :to="'/material/edit?padplacementid=' + scope.row.padplacementid">
+            <el-button type="primary" size="mini" @click="handleUpdate(scope.row)">上传素材</el-button>
+          </router-link>
         </template>
       </el-table-column>
 

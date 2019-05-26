@@ -100,7 +100,9 @@
 
       <el-table-column label="操作" align="center" width="150" class-name="small-padding fixed-width">
         <template slot-scope="scope">
-          <el-button type="primary" size="mini" @click="handleUpdate(scope.row)" :disabled="buttonDisabled">上传素材</el-button>
+          <router-link :to="'/material/edit?padplacementid=' + scope.row.padplacementid">
+            <el-button type="primary" size="mini" @click="handleUpdate(scope.row)">上传素材</el-button>
+          </router-link>
         </template>
       </el-table-column>
     </el-table>
