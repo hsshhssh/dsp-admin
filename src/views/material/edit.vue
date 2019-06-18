@@ -21,7 +21,7 @@
         <el-input v-model="temp.crid"/>
       </el-form-item>
       <el-form-item label="素材类型">
-        <el-input v-model="temp.adType"/>
+        <el-input v-model="temp.adtype"/>
       </el-form-item>
       <!--ext暂时忽略-->
       <el-form-item label="扩展字段" v-if="false">
