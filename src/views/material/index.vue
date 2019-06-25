@@ -1,9 +1,6 @@
 <template>
   <div class="app-container">
     <div class="filter-container" style="margin-bottom: 20px">
-      <el-select v-model="listQuery.pmediaid" placeholder="平台媒体" clearable style="width: 90px" class="filter-item">
-        <el-option v-for="item in pmediaOptions" :key="item.key" :label="item.display_name" :value="item.key"/>
-      </el-select>
       <el-input placeholder="广告位id" v-model="listQuery.adplacementid" style="width: 100px;" class="filter-item" @keyup.enter.native="handleFilter"/>
       <el-input placeholder="创意ID" v-model="listQuery.crid" style="width: 100px;" class="filter-item" @keyup.enter.native="handleFilter"/>
       <el-button v-waves class="filter-item" type="primary" icon="el-icon-search" @click="handleFilter">搜索</el-button>
@@ -23,11 +20,6 @@
       <el-table-column label="素材ID" prop="id" sortable="custom" align="center" width="100">
         <template slot-scope="scope">
           <span>{{ scope.row.id }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="平台媒体" prop="id" sortable="custom" align="center" width="120">
-        <template slot-scope="scope">
-          <span>{{ scope.row.pmediaStr }}</span>
         </template>
       </el-table-column>
       <el-table-column label="广告位id" prop="id" sortable="custom" align="center" width="120">
@@ -78,7 +70,7 @@
       <el-table-column label="操作" align="center" width="150" class-name="small-padding fixed-width">
         <template slot-scope="scope">
           <router-link :to="'/material/edit?padplacementid=' + scope.row.padplacementid">
-            <el-button type="primary" size="mini" @click="handleUpdate(scope.row)">上传素材</el-button>
+            <el-button type="primary" size="mini" @click="handleUpdate(scope.row)">修改</el-button>
           </router-link>
         </template>
       </el-table-column>

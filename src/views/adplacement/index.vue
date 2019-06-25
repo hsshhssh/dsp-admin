@@ -17,6 +17,7 @@
       <el-select v-model="listQuery.status" placeholder="状态" clearable style="width: 90px" class="filter-item">
         <el-option v-for="item in statusOptions" :key="item.key" :label="item.display_name" :value="item.key"/>
       </el-select>
+      <el-input placeholder="媒体名称" v-model="listQuery.medianame_like" style="width: 100px;" class="filter-item" @keyup.enter.native="handleFilter"/>
       <el-button v-waves class="filter-item" type="primary" icon="el-icon-search" @click="handleFilter">搜索</el-button>
       <el-button class="filter-item" style="margin-left: 10px;" type="primary" icon="el-icon-edit" @click="handleSync">手动获取广告位</el-button>
       <el-button v-waves :loading="downloadLoading" class="filter-item" type="primary" icon="el-icon-download" @click="handleDownload" :disabled="buttonDisabled">导出</el-button>
@@ -185,7 +186,7 @@
         listLoading: true,
         listQuery: {
           page: 1,
-          limit: 5,
+          limit: 10,
           importance: undefined,
           title: undefined,
           type: undefined,

@@ -18,10 +18,12 @@
         <el-input v-model="temp.price"/>
       </el-form-item>
       <el-form-item label="创意id">
-        <el-input v-model="temp.crid"/>
+        <el-input v-model="temp.crid" :disabled="true"/>
       </el-form-item>
       <el-form-item label="素材类型">
-        <el-input v-model="temp.adtype"/>
+        <el-select placeholder="" v-model="temp.adtype">
+          <el-option v-for="item in adtypeOptions" :key="item.key" :label="item.display_name" :value="item.key"/>
+        </el-select>
       </el-form-item>
       <!--ext暂时忽略-->
       <el-form-item label="扩展字段" v-if="false">
@@ -30,7 +32,7 @@
 
       <!--adm-->
       <el-form-item label="dsp段素材id">
-        <el-input v-model="temp.adm.adId"/>
+        <el-input v-model="temp.adm.adId" :disabled="true"/>
       </el-form-item>
       <el-form-item label="dsp段素材url">
         <el-upload
@@ -50,16 +52,16 @@
       </el-form-item>
       <!--adm inner-->
       <el-form-item label="跳转落地页地址">
-        <el-input v-model="temp.adm.inner.landingpage"/>
+        <el-input v-model="temp.adm.dspApiMaterialInnerReqDTO.landingpage"/>
       </el-form-item>
       <el-form-item label="平台">
-        <el-radio-group v-model="temp.adm.inner.platform">
+        <el-radio-group v-model="temp.adm.dspApiMaterialInnerReqDTO.platform">
           <el-radio :label="1">pc</el-radio>
           <el-radio :label="2">移动</el-radio>
         </el-radio-group>
       </el-form-item>
       <el-form-item label="物料类型">
-        <el-radio-group v-model="temp.adm.inner.materialtype">
+        <el-radio-group v-model="temp.adm.dspApiMaterialInnerReqDTO.materialtype">
           <el-radio :label="0">图片</el-radio>
           <el-radio :label="1">视频贴片</el-radio>
           <el-radio :label="2">flash</el-radio>
@@ -72,10 +74,10 @@
             <strong style="font-size: 120%">PC </strong><i class="header-icon el-icon-info"></i>
           </template>
           <el-form-item label="广告标题">
-            <el-input v-model="temp.adm.inner.pc.title"/>
+            <el-input v-model="temp.adm.dspApiMaterialInnerReqDTO.pc.title"/>
           </el-form-item>
           <el-form-item label="广告描述">
-            <el-input v-model="temp.adm.inner.pc.desc"/>
+            <el-input v-model="temp.adm.dspApiMaterialInnerReqDTO.pc.desc"/>
           </el-form-item>
         </el-collapse-item>
         <el-collapse-item name="2">
@@ -83,22 +85,22 @@
             <strong style="font-size: 120%">Mobile </strong><i class="header-icon el-icon-info"></i>
           </template>
           <el-form-item label="广告标题">
-            <el-input v-model="temp.adm.inner.mobile.title"/>
+            <el-input v-model="temp.adm.dspApiMaterialInnerReqDTO.mobile.title"/>
           </el-form-item>
           <el-form-item label="广告描述">
-            <el-input v-model="temp.adm.inner.mobile.desc"/>
+            <el-input v-model="temp.adm.dspApiMaterialInnerReqDTO.mobile.desc"/>
           </el-form-item>
           <el-form-item label="APP应用名称">
-            <el-input v-model="temp.adm.inner.mobile.apkname"/>
+            <el-input v-model="temp.adm.dspApiMaterialInnerReqDTO.mobile.apkname"/>
           </el-form-item>
           <el-form-item label="包名">
-            <el-input v-model="temp.adm.inner.mobile.package"/>
+            <el-input v-model="temp.adm.dspApiMaterialInnerReqDTO.mobile.package"/>
           </el-form-item>
           <el-form-item label="APP唯一id号">
-            <el-input v-model="temp.adm.inner.mobile.appstoreid"/>
+            <el-input v-model="temp.adm.dspApiMaterialInnerReqDTO.mobile.appstoreid"/>
           </el-form-item>
           <el-form-item label="广告类型">
-            <el-radio-group v-model="temp.adm.inner.mobile.adtype">
+            <el-radio-group v-model="temp.adm.dspApiMaterialInnerReqDTO.mobile.adtype">
               <el-radio :label="0">普通广告</el-radio>
               <el-radio :label="1">app下载</el-radio>
             </el-radio-group>
@@ -109,10 +111,10 @@
             <strong style="font-size: 120%">Video </strong><i class="header-icon el-icon-info"></i>
           </template>
           <el-form-item label="播放时长">
-            <el-input v-model="temp.adm.inner.video.duration"/>
+            <el-input v-model="temp.adm.dspApiMaterialInnerReqDTO.video.duration"/>
           </el-form-item>
           <el-form-item label="静态封面素材">
-            <el-input v-model="temp.adm.inner.video.coverimg"/>
+            <el-input v-model="temp.adm.dspApiMaterialInnerReqDTO.video.coverimg"/>
           </el-form-item>
         </el-collapse-item>
       </el-collapse>
@@ -153,6 +155,11 @@
   import waves from '@/directive/waves' // Waves directive
   import Pagination from '@/components/Pagination' // Secondary package based on el-pagination
 
+  const adtypeOptions = [
+    { key: "h", display_name: 'H5' },
+    { key: "", display_name: '其他' }
+  ]
+
   export default {
     name: 'ComplexTable',
     components: { Pagination },
@@ -162,14 +169,16 @@
     },
     data() {
       return {
+        adtypeOptions,
         fileList: [],
         rules: {
         },
         temp: {
           title: "",
+          adType: undefined,
           adm:{
             materialUrl:"",
-            inner:{
+            dspApiMaterialInnerReqDTO:{
               pc:{},
               mobile:{},
               video:{}
@@ -205,7 +214,7 @@
       handleRemove() {
         this.fileList = []
         this.temp.adm.materialUrl = ""
-        this.temp.adm.inner.url = ""
+        this.temp.adm.dspApiMaterialInnerReqDTO.url = ""
       },
       handlePreview(file) {
         console.log(file);
@@ -225,7 +234,7 @@
             }
           ]
           this.temp.adm.materialUrl = res.fileUrl;
-          this.temp.adm.inner.url = res.fileUrl;
+          this.temp.adm.dspApiMaterialInnerReqDTO.url = res.fileUrl;
         } else {
           return this.$confirm(`上传失败`);
         }
