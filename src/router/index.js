@@ -76,6 +76,21 @@ export const constantRouterMap = [
         hidden: true
       }
     ]
+  },
+
+  // 统计
+  {
+    path: '/odsBid',
+    component: Layout,
+    redirect: 'material/index',
+    children: [
+      {
+        path: 'index',
+        component: () => import('@/views/odsBid/index'),
+        name: '统计',
+        meta: { title: '统计', icon: 'adplacement', noCache: true}
+      }
+    ]
   }
 ]
 
