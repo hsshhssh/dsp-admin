@@ -101,6 +101,7 @@
           </el-form-item>
           <el-form-item label="广告类型">
             <el-radio-group v-model="temp.adm.dspApiMaterialInnerReqDTO.mobile.adtype">
+              <el-radio :label="-1">无</el-radio>
               <el-radio :label="0">普通广告</el-radio>
               <el-radio :label="1">app下载</el-radio>
             </el-radio-group>
@@ -179,9 +180,14 @@
           adm:{
             materialUrl:"",
             dspApiMaterialInnerReqDTO:{
-              pc:{},
-              mobile:{},
-              video:{}
+              pc:{
+                "title":undefined
+              },
+              mobile:{
+                "adtype":-1
+              },
+              video:{},
+              materialtype: ""
             }
           }
         },
@@ -199,6 +205,8 @@
         }
         getMaterial(query).then(response => {
           this.temp = response.data
+
+          // 处理materialUrl
           if (this.temp.adm.materialUrl != undefined && this.temp.adm.materialUrl !== "") {
             var arr = this.temp.adm.materialUrl.split("/")
             this.fileList = [
@@ -207,6 +215,33 @@
                 url: this.temp.adm.materialUrl
               }
             ]
+          }
+
+          // 处理materialtype
+          if (this.temp.adm.dspApiMaterialInnerReqDTO.materialtype != undefined && this.temp.adm.dspApiMaterialInnerReqDTO.materialtype !== "") {
+            this.temp.adm.dspApiMaterialInnerReqDTO.materialtype = parseInt(this.temp.adm.dspApiMaterialInnerReqDTO.materialtype);
+          }
+          if (this.temp.adm.dspApiMaterialInnerReqDTO.pc === undefined) {
+            this.temp.adm.dspApiMaterialInnerReqDTO.pc = {
+              "title":"",
+              "desc":""
+            }
+          }
+          if (this.temp.adm.dspApiMaterialInnerReqDTO.mobile === undefined) {
+            this.temp.adm.dspApiMaterialInnerReqDTO.mobile = {
+              "title":"",
+              "desc":"",
+              "apkname":"",
+              "package":"",
+              "appstoreid":"",
+              "adtype":-1,
+            }
+          }
+          if (this.temp.adm.dspApiMaterialInnerReqDTO.video === undefined) {
+            this.temp.adm.dspApiMaterialInnerReqDTO.video = {
+              "duration":"",
+              "coverimg":""
+            }
           }
           console.log(this.temp)
         });
@@ -240,10 +275,38 @@
         }
       },
       onSubmit() {
+        if (this.temp.adm.dspApiMaterialInnerReqDTO.materialtype != undefined) {
+          this.temp.adm.dspApiMaterialInnerReqDTO.materialtype = this.temp.adm.dspApiMaterialInnerReqDTO.materialtype + ""
+        }
+
+        if (this.temp.adm.dspApiMaterialInnerReqDTO.pc !== undefined) {
+          if (this.filterObj(this.temp.adm.dspApiMaterialInnerReqDTO.pc)) {
+            this.temp.adm.dspApiMaterialInnerReqDTO.pc = undefined;
+          }
+        }
+        if (this.temp.adm.dspApiMaterialInnerReqDTO.mobile !== undefined) {
+          if (this.filterObj(this.temp.adm.dspApiMaterialInnerReqDTO.mobile)) {
+            this.temp.adm.dspApiMaterialInnerReqDTO.mobile = undefined;
+          }
+        }
+        if (this.temp.adm.dspApiMaterialInnerReqDTO.video !== undefined) {
+          if (this.filterObj(this.temp.adm.dspApiMaterialInnerReqDTO.video)) {
+            this.temp.adm.dspApiMaterialInnerReqDTO.video = undefined;
+          }
+        }
+
+
         saveMaterial(this.temp).then(response => {
           this.$message.success(`${response.data}`)
           this.getMaterial()
         })
+      },
+      filterObj(obj) {
+        for (var key in obj) {
+          if (obj[key] !== '' && obj[key] !== -1)
+            return false;
+        }
+        return true;
       }
     }
   }
