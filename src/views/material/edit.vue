@@ -25,9 +25,12 @@
           <el-option v-for="item in adtypeOptions" :key="item.key" :label="item.display_name" :value="item.key"/>
         </el-select>
       </el-form-item>
-      <!--ext暂时忽略-->
-      <el-form-item label="扩展字段" v-if="false">
-        <el-input v-model="temp.ext"/>
+      <!--ext-->
+      <el-form-item label="曝光监测对象url">
+        <el-input v-model="temp.pmoUrl"/>
+      </el-form-item>
+      <el-form-item label="点击监控对象url">
+        <el-input v-model="temp.cmoUrl"/>
       </el-form-item>
 
       <!--adm-->
@@ -189,7 +192,10 @@
               video:{},
               materialtype: ""
             }
-          }
+          },
+          ext: {},
+          pmoUrl:"",
+          cmoUrl:""
         },
         admType: "",
         uploadApi: process.env.BASE_API + "/dsp/upload"
@@ -243,6 +249,13 @@
               "coverimg":""
             }
           }
+
+          if (this.temp.ext !== undefined && !this.filterObj(this.temp.ext) && this.temp.ext.pmo !== undefined) {
+            this.temp.pmoUrl = this.temp.ext.pmo[0].url
+          }
+          if (this.temp.ext !== undefined && !this.filterObj(this.temp.ext) && this.temp.ext.cmo !== undefined) {
+            this.temp.cmoUrl = this.temp.ext.cmo[0].url
+          }
           console.log(this.temp)
         });
       },
@@ -294,8 +307,21 @@
             this.temp.adm.dspApiMaterialInnerReqDTO.video = undefined;
           }
         }
-
-
+        this.temp.ext = {
+          "pmo": [
+            {
+              "type_mma":0,
+              "url": this.temp.pmoUrl
+            }
+          ],
+          "cmo": [
+            {
+              "type_mma":0,
+              "url": this.temp.cmoUrl
+            }
+          ]
+        }
+        console.log(this.temp)
         saveMaterial(this.temp).then(response => {
           this.$message.success(`${response.data}`)
           this.getMaterial()
