@@ -1,12 +1,9 @@
 <template>
   <div class="app-container">
     <div class="filter-container" style="margin-bottom: 20px">
-      <el-input placeholder="素材名称" v-model="listQuery.name_like" style="width: 100px;" class="filter-item" @keyup.enter.native="handleFilter"/>
-      <el-input placeholder="创意ID" v-model="listQuery.crid" style="width: 100px;" class="filter-item" @keyup.enter.native="handleFilter"/>
+      <el-input placeholder="请输入计划名称" v-model="listQuery.name_like" style="width: 150px;" class="filter-item" @keyup.enter.native="handleFilter"/>
       <el-button v-waves class="filter-item" type="primary" icon="el-icon-search" @click="handleFilter">搜索</el-button>
-      <el-button v-waves class="filter-item" type="primary" icon="el-icon-edit" @click="handleInsert">新增</el-button>
-      <!--<el-button class="filter-item" style="margin-left: 10px;" type="primary" icon="el-icon-edit" @click="handleCreate">手动获取广告位</el-button>-->
-      <el-button v-waves :loading="downloadLoading" class="filter-item" type="primary" icon="el-icon-download" @click="handleDownload" :disabled="buttonDisabled">导出</el-button>
+      <el-button v-waves class="filter-item" type="primary" icon="el-icon-edit" @click="handleCreate">新增</el-button>
     </div>
 
     <el-table
@@ -18,100 +15,69 @@
       highlight-current-row
       style="width: 100%;"
       @sort-change="sortChange">
-      <el-table-column label="素材ID" prop="id" sortable="custom" align="center" width="100">
+
+      <el-table-column label="ID" prop="id" sortable="custom" align="center" width="100">
         <template slot-scope="scope">
           <span>{{ scope.row.id }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="素材名称" prop="id" sortable="custom" align="center" width="200">
+
+      <el-table-column label="标签名称" prop="id" sortable="custom" align="center" width="200">
         <template slot-scope="scope">
           <span>{{ scope.row.name }}</span>
         </template>
       </el-table-column>
-      <!--<el-table-column label="广告位id" prop="id" sortable="custom" align="center" width="120">-->
-        <!--<template slot-scope="scope">-->
-          <!--<span>{{ scope.row.adplacementid }}</span>-->
-        <!--</template>-->
-      <!--</el-table-column>-->
-      <!--<el-table-column label="广告位名称" prop="id" sortable="custom" align="center" width="200">-->
-        <!--<template slot-scope="scope">-->
-          <!--<span>{{ scope.row.adplacementname }}</span>-->
-        <!--</template>-->
-      <!--</el-table-column>-->
 
-      <el-table-column label="价格" prop="id" sortable="custom" align="center" width="100">
+      <el-table-column label="TD密钥" prop="id" sortable="custom" align="center" width="200">
         <template slot-scope="scope">
-          <span>{{ scope.row.price }}</span>
+          <span>{{ scope.row.tdKey}}</span>
         </template>
       </el-table-column>
 
-      <el-table-column label="创意ID" prop="id" sortable="custom" align="center" width="150">
+      <el-table-column label="操作" align="center" width="200" class-name="small-padding fixed-width">
         <template slot-scope="scope">
-          <span>{{ scope.row.crid }}</span>
+          <el-button type="primary" size="mini" @click="handleUpdate(scope.row)">修改</el-button>
         </template>
       </el-table-column>
-
-      <el-table-column label="素材类型" prop="id" sortable="custom" align="center" width="150">
-        <template slot-scope="scope">
-          <span>{{ scope.row.adtype }}</span>
-        </template>
-      </el-table-column>
-
-      <el-table-column label="扩展字段" prop="id" sortable="custom" align="center" width="150">
-        <template slot-scope="scope">
-          <router-link :to="'/material/edit?id=' + scope.row.id">
-            <a href="#" style="color: #1a0dab">点击查看</a>
-          </router-link>
-        </template>
-      </el-table-column>
-
-      <el-table-column label="adm" prop="id" sortable="custom" align="center" width="150">
-        <template slot-scope="scope">
-          <router-link :to="'/material/edit?id=' + scope.row.id">
-            <a href="#" style="color: #1a0dab">点击查看</a>
-          </router-link>
-        </template>
-      </el-table-column>
-
-      <el-table-column label="操作" align="center" width="150" class-name="small-padding fixed-width">
-        <template slot-scope="scope">
-          <router-link :to="'/material/edit?id=' + scope.row.id">
-            <el-button type="primary" size="mini" @click="handleUpdate(scope.row)">修改</el-button>
-          </router-link>
-        </template>
-      </el-table-column>
-
     </el-table>
 
     <pagination v-show="total>0" :total="total" :page.sync="listQuery.page" :limit.sync="listQuery.limit" @pagination="getList" />
 
+    <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible">
+      <el-form ref="dataForm"  :model="temp" label-position="left" label-width="70px" style="width: 400px; margin-left:50px;">
+        <el-form-item label="名称">
+          <el-input v-model="temp.name" />
+        </el-form-item>
+
+        <el-form-item label="td密钥">
+          <el-input v-model="temp.tdKey" />
+        </el-form-item>
+      </el-form>
+
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="dialogFormVisible = false">取消</el-button>
+        <el-button type="primary" @click="handleSave">保存</el-button>
+      </div>
+    </el-dialog>
 
   </div>
 </template>
 
 <script>
-  import { fetchListMaterial } from '@/api/dsp/material'
-  import { Message } from 'element-ui'
+  import { fetchList, getStrategy, saveStrategy, disableStrategy, enableStrategy, copyStrategy} from '@/api/dsp/strategy'
+  import { fetchListTag, saveTag } from '@/api/dsp/tag'
   import waves from '@/directive/waves' // Waves directive
   import { parseTime } from '@/utils'
   import Pagination from '@/components/Pagination' // Secondary package based on el-pagination
 
-  const calendarTypeOptions = [
-    { key: 'CN', display_name: 'China' },
-    { key: 'US', display_name: 'USA' },
-    { key: 'JP', display_name: 'Japan' },
-    { key: 'EU', display_name: 'Eurozone' }
+  const odsTypeOptions = [
+    { key: 1, display_name: '平台媒体id' },
+    { key: 2, display_name: '媒体id' },
+    { key: 3, display_name: '广告位id' },
+    { key: 4, display_name: '素材id' }
   ]
 
-  const pmediaOptions = [
-    { key: 1, display_name: '软告' }
-  ]
 
-  // arr to obj ,such as { CN : "China", US : "USA" }
-  const calendarTypeKeyValue = calendarTypeOptions.reduce((acc, cur) => {
-    acc[cur.key] = cur.display_name
-    return acc
-  }, {})
 
   export default {
     name: 'ComplexTable',
@@ -138,17 +104,11 @@
         listLoading: true,
         listQuery: {
           page: 1,
-          limit: 5,
-          importance: undefined,
-          title: undefined,
-          type: undefined,
-          sort: '+id'
+          limit: 10,
         },
         importanceOptions: [1, 2, 3],
-        calendarTypeOptions,
-        pmediaOptions,
+        odsTypeOptions,
         sortOptions: [{ label: 'ID Ascending', key: '+id' }, { label: 'ID Descending', key: '-id' }],
-        statusOptions: ['published', 'draft', 'deleted'],
         showReviewer: false,
         temp: {
           id: undefined,
@@ -162,8 +122,8 @@
         dialogFormVisible: false,
         dialogStatus: '',
         textMap: {
-          update: 'Edit',
-          create: 'Create'
+          update: '修改',
+          create: '新增'
         },
         dialogPvVisible: false,
         pvData: [],
@@ -173,7 +133,29 @@
           title: [{ required: true, message: 'title is required', trigger: 'blur' }]
         },
         downloadLoading: false,
-        buttonDisabled: true
+        buttonDisabled: true,
+        pickerOptions: {
+          shortcuts: [{
+            text: '今天',
+            onClick(picker) {
+              picker.$emit('pick', new Date());
+            }
+          }, {
+            text: '昨天',
+            onClick(picker) {
+              const date = new Date();
+              date.setTime(date.getTime() - 3600 * 1000 * 24);
+              picker.$emit('pick', date);
+            }
+          }, {
+            text: '一周前',
+            onClick(picker) {
+              const date = new Date();
+              date.setTime(date.getTime() - 3600 * 1000 * 24 * 7);
+              picker.$emit('pick', date);
+            }
+          }]
+        },
       }
     },
     created() {
@@ -181,18 +163,41 @@
     },
     methods: {
       handleInsert() {
-        this.$router.push({path: '/material/edit'})
+        this.$router.push({path: '/strategy/edit'})
       },
-      getList() {
-        this.listLoading = false
-        if (this.listQuery.adplacementid === '') {
-          this.listQuery.adplacementid = null
-        }
-        if (this.listQuery.crid === '') {
-          this.listQuery.crid = null
-        }
+      copyStrategy(id) {
+        let query = {
+          "id": id
+        };
+        copyStrategy(query).then(response => {
+          this.$message.success(`${response.data}`)
+          this.getList()
+        })
+      },
+      disableStrategy(id) {
+        let query = {
+          "id": id
+        };
+        disableStrategy(query).then(response => {
+          this.$message.success(`${response.data}`)
+          this.getList()
+        })
+      },
+      enableStrategy(id) {
+        let query = {
+          "id": id
+        };
+        enableStrategy(query).then(response => {
+          this.$message.success(`${response.data}`)
+          this.getList()
+        })
+      },
 
-        fetchListMaterial(this.listQuery).then(response => {
+      getList() {
+        this.listLoading = true
+        console.log(this.listQuery)
+
+        fetchListTag(this.listQuery).then(response => {
           this.list = response.data.list
           this.total = response.data.total
 
@@ -200,7 +205,7 @@
           setTimeout(() => {
             this.listLoading = false
           }, 0.5 * 1000)
-        });
+        })
       },
       handleFilter() {
         this.listQuery.page = 1
@@ -238,14 +243,6 @@
           type: ''
         }
       },
-      handleCreate() {
-        this.resetTemp()
-        this.dialogStatus = 'create'
-        this.dialogFormVisible = true
-        this.$nextTick(() => {
-          this.$refs['dataForm'].clearValidate()
-        })
-      },
       createData() {
         this.$refs['dataForm'].validate((valid) => {
           if (valid) {
@@ -265,12 +262,20 @@
         })
       },
       handleUpdate(row) {
-        this.temp = Object.assign({}, row) // copy obj
-        this.temp.timestamp = new Date(this.temp.timestamp)
         this.dialogStatus = 'update'
         this.dialogFormVisible = true
-        this.$nextTick(() => {
-          this.$refs['dataForm'].clearValidate()
+        this.temp = row;
+      },
+      handleCreate() {
+        this.dialogStatus = 'create'
+        this.dialogFormVisible = true
+        this.temp = {}
+      },
+      handleSave() {
+        saveTag(this.temp).then(response => {
+          this.$message.success(`${response.data}`)
+          this.dialogFormVisible = false
+          this.getList()
         })
       },
       updateData() {

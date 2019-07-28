@@ -99,13 +99,13 @@
         </template>
       </el-table-column>
 
-      <el-table-column label="操作" align="center" width="150" class-name="small-padding fixed-width">
-        <template slot-scope="scope">
-          <router-link :to="'/material/edit?padplacementid=' + scope.row.padplacementid">
-            <el-button type="primary" size="mini" @click="handleUpdate(scope.row)">上传素材</el-button>
-          </router-link>
-        </template>
-      </el-table-column>
+      <!--<el-table-column label="操作" align="center" width="150" class-name="small-padding fixed-width">-->
+        <!--<template slot-scope="scope">-->
+          <!--<router-link :to="'/material/edit?id=' + scope.row.padplacementid">-->
+            <!--<el-button type="primary" size="mini" @click="handleUpdate(scope.row)">上传素材</el-button>-->
+          <!--</router-link>-->
+        <!--</template>-->
+      <!--</el-table-column>-->
     </el-table>
 
     <pagination v-show="total>0" :total="total" :page.sync="listQuery.page" :limit.sync="listQuery.limit" @pagination="getList" />
@@ -114,7 +114,7 @@
 </template>
 
 <script>
-  import { fetchList, sync } from '@/api/dsp/adplacement'
+  import { fetchListAdplacement, sync } from '@/api/dsp/adplacement'
   import { Message } from 'element-ui'
   import waves from '@/directive/waves' // Waves directive
   import { parseTime } from '@/utils'
@@ -236,7 +236,7 @@
         if (this.listQuery.adplacementid === '') {
             this.listQuery.adplacementid = null
         }
-        fetchList(this.listQuery).then(response => {
+        fetchListAdplacement(this.listQuery).then(response => {
           this.list = response.data.list
           this.total = response.data.total
 

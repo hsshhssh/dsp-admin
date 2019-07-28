@@ -1,17 +1,21 @@
 <template>
   <div class="app-container">
     <el-form ref="postForm" :model="temp" :rules="rules" label-position="right" label-width="120px">
-      <el-form-item label="平台广告id">
-        <el-input v-model="temp.padplacementid" :disabled="true"/>
-      </el-form-item>
-      <el-form-item label="平台媒体">
-        <el-input v-model="temp.pmediaStr" :disabled="true"/>
-      </el-form-item>
-      <el-form-item label="广告位id">
-        <el-input v-model="temp.adplacementid" :disabled="true"/>
-      </el-form-item>
-      <el-form-item label="广告位">
-        <el-input v-model="temp.adplacementname" :disabled="true"/>
+      <!--<el-form-item label="平台广告id">-->
+        <!--<el-input v-model="temp.padplacementid" :disabled="true"/>-->
+      <!--</el-form-item>-->
+      <!--<el-form-item label="平台媒体">-->
+        <!--<el-input v-model="temp.pmediaStr" :disabled="true"/>-->
+      <!--</el-form-item>-->
+      <!--<el-form-item label="广告位id">-->
+        <!--<el-input v-model="temp.adplacementid" :disabled="true"/>-->
+      <!--</el-form-item>-->
+      <!--<el-form-item label="广告位">-->
+        <!--<el-input v-model="temp.adplacementname" :disabled="true"/>-->
+      <!--</el-form-item>-->
+
+      <el-form-item label="素材名称">
+        <el-input v-model="temp.name"/>
       </el-form-item>
 
       <el-form-item label="价格">
@@ -207,7 +211,7 @@
     methods: {
       getMaterial() {
         var query = {
-          "padplacementid": this.$route.query.padplacementid
+          "id": this.$route.query.id === undefined ? -1 : this.$route.query.id
         }
         getMaterial(query).then(response => {
           this.temp = response.data
@@ -324,7 +328,7 @@
         console.log(this.temp)
         saveMaterial(this.temp).then(response => {
           this.$message.success(`${response.data}`)
-          this.getMaterial()
+          this.$router.push({path: '/material/index'})
         })
       },
       filterObj(obj) {

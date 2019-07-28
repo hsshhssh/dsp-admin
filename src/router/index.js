@@ -78,6 +78,43 @@ export const constantRouterMap = [
     ]
   },
 
+  // 投放计划
+  {
+    path: '/strategy',
+    component: Layout,
+    redirect: 'strategy/index',
+    children: [
+      {
+        path: 'index',
+        component: () => import('@/views/strategy/index'),
+        name: '投放计划',
+        meta: { title: '投放计划', icon: 'adplacement', noCache: true}
+      },
+      {
+        path: 'edit',
+        component: () => import('@/views/strategy/edit'),
+        name: '编辑计划',
+        meta: { title: '编辑计划', icon: 'adplacement', noCache: true},
+        hidden: true
+      }
+    ]
+  },
+
+  // 标签
+  {
+    path: '/tag',
+    component: Layout,
+    redirect: 'tag/index',
+    children: [
+      {
+        path: 'index',
+        component: () => import('@/views/tag/index'),
+        name: '标签',
+        meta: { title: '标签', icon: 'adplacement', noCache: true}
+      }
+    ]
+  },
+
   // 统计
   {
     path: '/odsBid',

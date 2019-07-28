@@ -1,6 +1,6 @@
 import request from '@/utils/request'
 
-export function fetchList(query) {
+export function fetchListAdplacement(query) {
   return request({
     url: '/admin/adplacement/list',
     method: 'POST',
