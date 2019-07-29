@@ -34,6 +34,18 @@
         </template>
       </el-table-column>
 
+      <el-table-column label="黑白名单" prop="id" sortable="custom" align="center" width="200">
+        <template slot-scope="scope">
+          <span>{{ scope.row.tagTypeName}}</span>
+        </template>
+      </el-table-column>
+
+      <el-table-column label="是否请求TD" prop="id" sortable="custom" align="center" width="200">
+        <template slot-scope="scope">
+          <span>{{ scope.row.isTdName}}</span>
+        </template>
+      </el-table-column>
+
       <el-table-column label="操作" align="center" width="200" class-name="small-padding fixed-width">
         <template slot-scope="scope">
           <el-button type="primary" size="mini" @click="handleUpdate(scope.row)">修改</el-button>
@@ -51,6 +63,17 @@
 
         <el-form-item label="td密钥">
           <el-input v-model="temp.tdKey" />
+        </el-form-item>
+
+        <el-form-item label="黑白名单">
+          <el-radio v-model="temp.tagTypeStr" label="0">无</el-radio>
+          <!--<el-radio v-model="temp.tagTypeStr" label="1">白名单</el-radio>-->
+          <el-radio v-model="temp.tagTypeStr" label="2">黑名单</el-radio>
+        </el-form-item>
+
+        <el-form-item label="是否请求TD">
+          <el-radio v-model="temp.isTdStr" label="1">是</el-radio>
+          <el-radio v-model="temp.isTdStr" label="2">否</el-radio>
         </el-form-item>
       </el-form>
 
@@ -117,7 +140,9 @@
           timestamp: new Date(),
           title: '',
           type: '',
-          status: 'published'
+          status: 'published',
+          tagTypeStr: "",
+          isTdStr: ""
         },
         dialogFormVisible: false,
         dialogStatus: '',
