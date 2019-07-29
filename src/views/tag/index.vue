@@ -66,7 +66,7 @@
         </el-form-item>
 
         <el-form-item label="黑白名单">
-          <el-radio v-model="temp.tagTypeStr" label="0">无</el-radio>
+          <!--<el-radio v-model="temp.tagTypeStr" label="0">无</el-radio>-->
           <!--<el-radio v-model="temp.tagTypeStr" label="1">白名单</el-radio>-->
           <el-radio v-model="temp.tagTypeStr" label="2">黑名单</el-radio>
         </el-form-item>
