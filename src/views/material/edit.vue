@@ -30,10 +30,10 @@
         </el-select>
       </el-form-item>
       <!--ext-->
-      <el-form-item label="曝光监测对象url">
+      <el-form-item label="曝光监测对象url" v-if="false">
         <el-input v-model="temp.pmoUrl"/>
       </el-form-item>
-      <el-form-item label="点击监控对象url">
+      <el-form-item label="点击监控对象url" v-if="false">
         <el-input v-model="temp.cmoUrl"/>
       </el-form-item>
 

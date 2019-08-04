@@ -65,8 +65,8 @@
       <el-table-column label="操作" align="center" width="300" class-name="small-padding fixed-width">
         <template slot-scope="scope">
           <el-button type="primary" size="mini" @click="handleUpdate(scope.row)">修改</el-button>
-          <el-button type="success" size="mini" v-if="scope.row.status !== '1'" @click="enableStrategy(scope.row.id)">启用</el-button>
-          <el-button type="info" size="mini" v-if="scope.row.status === '1'" @click="disableStrategy(scope.row.id)">暂停</el-button>
+          <el-button type="success" size="mini" v-if="scope.row.status !== '1'" @click="enableStrategy(scope.row.id)">已暂停</el-button>
+          <el-button type="info" size="mini" v-if="scope.row.status === '1'" @click="disableStrategy(scope.row.id)">已启用</el-button>
           <el-button type="warning" size="mini" @click="copyStrategy(scope.row.id)">复制</el-button>
         </template>
       </el-table-column>
