@@ -55,7 +55,8 @@
         :on-success="handleUploadSucc">
         <el-button size="small" type="primary">点击上传</el-button>
         </el-upload>
-        <el-input v-model="temp.adm.materialUrl" :disabled="true"/>
+        <el-link type="success">{{temp.adm.materialUrl}}</el-link>
+        <!--<el-input v-model="temp.adm.materialUrl" :disabled="true"/>-->
       </el-form-item>
       <!--adm inner-->
       <el-form-item label="跳转落地页地址">

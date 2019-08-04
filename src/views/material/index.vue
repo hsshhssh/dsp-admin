@@ -39,7 +39,7 @@
         <!--</template>-->
       <!--</el-table-column>-->
 
-      <el-table-column label="价格" prop="id" sortable="custom" align="center" width="100">
+      <el-table-column label="价格(分)" prop="id" sortable="custom" align="center" width="100">
         <template slot-scope="scope">
           <span>{{ scope.row.price }}</span>
         </template>
