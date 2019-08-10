@@ -18,9 +18,9 @@
         <el-input v-model="temp.name"/>
       </el-form-item>
 
-      <el-form-item label="价格">
-        <el-input v-model="temp.price"/>
-      </el-form-item>
+      <!--<el-form-item label="价格">-->
+        <!--<el-input v-model="temp.price"/>-->
+      <!--</el-form-item>-->
       <el-form-item label="创意id">
         <el-input v-model="temp.crid" :disabled="true"/>
       </el-form-item>

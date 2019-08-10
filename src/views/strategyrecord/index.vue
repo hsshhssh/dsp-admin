@@ -1,9 +1,25 @@
 <template>
   <div class="app-container">
     <div class="filter-container" style="margin-bottom: 20px">
-      <el-input placeholder="请输入计划名称" v-model="listQuery.name_like" style="width: 150px;" class="filter-item" @keyup.enter.native="handleFilter"/>
+      <el-select v-model="listQuery.type" placeholder="操作类型" clearable style="width: 150px" class="filter-item">
+        <el-option v-for="item in typeOptions" :key="item.key" :label="item.display_name" :value="item.key"/>
+      </el-select>
+      <el-input placeholder="操作项目" v-model="listQuery.amname_like" style="width: 150px;" class="filter-item" @keyup.enter.native="handleFilter"/>
+      <el-date-picker
+        v-model="listQuery.timestamp_gte"
+        align="right"
+        type="date"
+        placeholder="开始时间"
+        :picker-options="pickerOptions">
+      </el-date-picker>
+      <el-date-picker
+        v-model="listQuery.timestamp_lte"
+        align="right"
+        type="date"
+        placeholder="结束时间"
+        :picker-options="pickerOptions">
+      </el-date-picker>
       <el-button v-waves class="filter-item" type="primary" icon="el-icon-search" @click="handleFilter">搜索</el-button>
-      <el-button v-waves class="filter-item" type="primary" icon="el-icon-edit" @click="handleCreate">新增</el-button>
     </div>
 
     <el-table
@@ -16,88 +32,59 @@
       style="width: 100%;"
       @sort-change="sortChange">
 
-      <el-table-column label="ID" prop="id" sortable="custom" align="center" width="100">
+      <el-table-column label="主键id" prop="id" sortable="custom" align="center" width="120">
         <template slot-scope="scope">
           <span>{{ scope.row.id }}</span>
         </template>
       </el-table-column>
 
-      <el-table-column label="标签名称" prop="id" sortable="custom" align="center" width="200">
+      <el-table-column label="操作时间" prop="id" sortable="custom" align="center" width="200">
         <template slot-scope="scope">
-          <span>{{ scope.row.name }}</span>
+          <span>{{ scope.row.recordTimeStr }}</span>
         </template>
       </el-table-column>
 
-      <el-table-column label="TD密钥" prop="id" sortable="custom" align="center" width="200">
+      <el-table-column label="操作类型" prop="id" sortable="custom" align="center" width="120">
         <template slot-scope="scope">
-          <span>{{ scope.row.tdKey}}</span>
+          <span>{{ scope.row.typeStr }}</span>
         </template>
       </el-table-column>
 
-      <el-table-column label="黑白名单" prop="id" sortable="custom" align="center" width="200">
+      <el-table-column label="操作项目" prop="id" sortable="custom" align="center" width="200">
         <template slot-scope="scope">
-          <span>{{ scope.row.tagTypeName}}</span>
+          <span>{{ scope.row.amname }}</span>
         </template>
       </el-table-column>
 
-      <el-table-column label="是否请求TD" prop="id" sortable="custom" align="center" width="200">
+      <el-table-column label="操作前内容" prop="id" sortable="custom" align="center" width="120">
         <template slot-scope="scope">
-          <span>{{ scope.row.isTdName}}</span>
+          <span>{{ scope.row.updateBefore }}</span>
         </template>
       </el-table-column>
 
-      <el-table-column label="操作" align="center" width="200" class-name="small-padding fixed-width">
+      <el-table-column label="操作后内容" prop="id" sortable="custom" align="center" width="120">
         <template slot-scope="scope">
-          <el-button type="primary" size="mini" @click="handleUpdate(scope.row)">修改</el-button>
+          <span>{{ scope.row.updateAfter }}</span>
         </template>
       </el-table-column>
+
     </el-table>
 
     <pagination v-show="total>0" :total="total" :page.sync="listQuery.page" :limit.sync="listQuery.limit" @pagination="getList" />
-
-    <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible">
-      <el-form ref="dataForm"  :model="temp" label-position="left" label-width="70px" style="width: 400px; margin-left:50px;">
-        <el-form-item label="名称">
-          <el-input v-model="temp.name" />
-        </el-form-item>
-
-        <el-form-item label="td密钥">
-          <el-input v-model="temp.tdKey" />
-        </el-form-item>
-
-        <el-form-item label="黑白名单">
-          <!--<el-radio v-model="temp.tagTypeStr" label="0">无</el-radio>-->
-          <el-radio v-model="temp.tagTypeStr" label="1">白名单</el-radio>
-          <el-radio v-model="temp.tagTypeStr" label="2">黑名单</el-radio>
-        </el-form-item>
-
-        <el-form-item label="是否请求TD">
-          <el-radio v-model="temp.isTdStr" label="1">是</el-radio>
-          <el-radio v-model="temp.isTdStr" label="2">否</el-radio>
-        </el-form-item>
-      </el-form>
-
-      <div slot="footer" class="dialog-footer">
-        <el-button @click="dialogFormVisible = false">取消</el-button>
-        <el-button type="primary" @click="handleSave">保存</el-button>
-      </div>
-    </el-dialog>
 
   </div>
 </template>
 
 <script>
-  import { fetchList, getStrategy, saveStrategy, disableStrategy, enableStrategy, copyStrategy} from '@/api/dsp/strategy'
-  import { fetchListTag, saveTag } from '@/api/dsp/tag'
+  import { fetchStrategyRecordList } from "../../api/dsp/strategyrecord";
+  import { Message } from 'element-ui'
   import waves from '@/directive/waves' // Waves directive
   import { parseTime } from '@/utils'
   import Pagination from '@/components/Pagination' // Secondary package based on el-pagination
 
-  const odsTypeOptions = [
-    { key: 1, display_name: '平台媒体id' },
-    { key: 2, display_name: '媒体id' },
-    { key: 3, display_name: '广告位id' },
-    { key: 4, display_name: '素材id' }
+  const typeOptions = [
+    { key: 1, display_name: '修改价格' },
+    { key: 2, display_name: '修改状态' }
   ]
 
 
@@ -128,9 +115,15 @@
         listQuery: {
           page: 1,
           limit: 10,
+          importance: undefined,
+          title: undefined,
+          type: undefined,
+          sort: '+id',
+          timestamp_gte: undefined,
+          timestamp_lte: undefined
         },
         importanceOptions: [1, 2, 3],
-        odsTypeOptions,
+        typeOptions,
         sortOptions: [{ label: 'ID Ascending', key: '+id' }, { label: 'ID Descending', key: '-id' }],
         showReviewer: false,
         temp: {
@@ -140,15 +133,13 @@
           timestamp: new Date(),
           title: '',
           type: '',
-          status: 'published',
-          tagTypeStr: "",
-          isTdStr: ""
+          status: 'published'
         },
         dialogFormVisible: false,
         dialogStatus: '',
         textMap: {
-          update: '修改',
-          create: '新增'
+          update: 'Edit',
+          create: 'Create'
         },
         dialogPvVisible: false,
         pvData: [],
@@ -187,42 +178,20 @@
       this.getList()
     },
     methods: {
-      handleInsert() {
-        this.$router.push({path: '/strategy/edit'})
-      },
-      copyStrategy(id) {
-        let query = {
-          "id": id
-        };
-        copyStrategy(query).then(response => {
-          this.$message.success(`${response.data}`)
-          this.getList()
-        })
-      },
-      disableStrategy(id) {
-        let query = {
-          "id": id
-        };
-        disableStrategy(query).then(response => {
-          this.$message.success(`${response.data}`)
-          this.getList()
-        })
-      },
-      enableStrategy(id) {
-        let query = {
-          "id": id
-        };
-        enableStrategy(query).then(response => {
-          this.$message.success(`${response.data}`)
-          this.getList()
-        })
-      },
-
       getList() {
         this.listLoading = true
         console.log(this.listQuery)
-
-        fetchListTag(this.listQuery).then(response => {
+        if (this.listQuery.timestamp_gte !== undefined && this.listQuery.timestamp_gte !== null) {
+          this.listQuery.timestamp_gte_ignore = this.listQuery.timestamp_gte.getTime();
+        } else {
+          this.listQuery.timestamp_gte_ignore = undefined
+        }
+        if (this.listQuery.timestamp_lte !== undefined && this.listQuery.timestamp_lte !== null) {
+          this.listQuery.timestamp_lte_ignore = this.listQuery.timestamp_lte.getTime();
+        } else {
+          this.listQuery.timestamp_lte_ignore = undefined
+        }
+        fetchStrategyRecordList(this.listQuery).then(response => {
           this.list = response.data.list
           this.total = response.data.total
 
@@ -287,20 +256,12 @@
         })
       },
       handleUpdate(row) {
+        this.temp = Object.assign({}, row) // copy obj
+        this.temp.timestamp = new Date(this.temp.timestamp)
         this.dialogStatus = 'update'
         this.dialogFormVisible = true
-        this.temp = row;
-      },
-      handleCreate() {
-        this.dialogStatus = 'create'
-        this.dialogFormVisible = true
-        this.temp = {}
-      },
-      handleSave() {
-        saveTag(this.temp).then(response => {
-          this.$message.success(`${response.data}`)
-          this.dialogFormVisible = false
-          this.getList()
+        this.$nextTick(() => {
+          this.$refs['dataForm'].clearValidate()
         })
       },
       updateData() {

@@ -5,14 +5,18 @@
       <el-input placeholder="请输入广告名称" v-model="listQuery.adplacementname_like" style="width: 150px;" class="filter-item" @keyup.enter.native="handleFilter"/>
       <el-input placeholder="请输入媒体名称" v-model="listQuery.medianame_like" style="width: 150px;" class="filter-item" @keyup.enter.native="handleFilter"/>
       <el-input placeholder="请输入素材名称" v-model="listQuery.materialidname_like" style="width: 150px;" class="filter-item" @keyup.enter.native="handleFilter"/>
+      <el-select v-model="listQuery.status" placeholder="不限投放状态" clearable style="width: 150px" class="filter-item" @onchange="handleFilter">
+        <el-option v-for="item in statusOptions" :key="item.key" :label="item.display_name" :value="item.key"/>
+      </el-select>
 
       <el-button v-waves class="filter-item" type="primary" icon="el-icon-search" @click="handleFilter">搜索</el-button>
       <el-button v-waves class="filter-item" type="primary" icon="el-icon-edit" @click="handleInsert">新增</el-button>
+      <el-button v-waves class="filter-item" type="primary" icon="el-icon-search" @click="handleFilterDelete">查询已删除</el-button>
     </div>
 
     <el-table
       v-loading="listLoading"
-      :key="tableKey"
+      :key="tableKey"getDeleteList
       :data="list"
       border
       fit
@@ -29,6 +33,17 @@
       <el-table-column label="计划名称" prop="id" sortable="custom" align="center" width="150">
         <template slot-scope="scope">
           <span>{{ scope.row.name }}</span>
+        </template>
+      </el-table-column>
+
+      <el-table-column label="价格(分)" prop="id" sortable="custom" align="center" width="150">
+        <template slot-scope="scope">
+          <template v-if="scope.row.priceEdit">
+            <el-input v-model="scope.row.price" class="edit-input" size="small"/>
+            <el-button size="mini" type="info" @click="cancelEditPrice(scope.row)">取消</el-button>
+            <el-button size="mini" type="success" @click="confirmEditPrice(scope.row)">确定</el-button>
+          </template>
+          <a v-else @click="editPrice(scope.row)" style="color: #1a0dab">{{ scope.row.price }} </a>
         </template>
       </el-table-column>
 
@@ -68,6 +83,8 @@
           <el-button type="success" size="mini" v-if="scope.row.status !== '1'" @click="enableStrategy(scope.row.id)">已暂停</el-button>
           <el-button type="info" size="mini" v-if="scope.row.status === '1'" @click="disableStrategy(scope.row.id)">已启用</el-button>
           <el-button type="warning" size="mini" @click="copyStrategy(scope.row.id)">复制</el-button>
+          <el-button type="primary" size="mini" v-if="scope.row.del === 1" @click="deleteStrategy(scope.row.id)">删除</el-button>
+          <el-button type="success" size="mini" v-if="scope.row.del === 2" @click="recoveryStrategy(scope.row.id)">恢复</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -78,7 +95,7 @@
 </template>
 
 <script>
-  import { fetchList, getStrategy, saveStrategy, disableStrategy, enableStrategy, copyStrategy} from '@/api/dsp/strategy'
+  import { fetchList, getStrategy, saveStrategy, disableStrategy, enableStrategy, copyStrategy, savePriceStrategy, deleteStrategy, recoveryStrategy} from '@/api/dsp/strategy'
   import waves from '@/directive/waves' // Waves directive
   import { parseTime } from '@/utils'
   import Pagination from '@/components/Pagination' // Secondary package based on el-pagination
@@ -90,7 +107,10 @@
     { key: 4, display_name: '素材id' }
   ]
 
-
+  const statusOptions = [
+    { key: "1", display_name: '已启用' },
+    { key: "2", display_name: '已暂停' }
+  ]
 
   export default {
     name: 'ComplexTable',
@@ -124,10 +144,13 @@
           materialname_like: undefined,
           adplacementid: undefined,
           mediaid: undefined,
-          materialid: undefined
+          materialid: undefined,
+          del: 1,
+          status: undefined,
         },
         importanceOptions: [1, 2, 3],
         odsTypeOptions,
+        statusOptions,
         sortOptions: [{ label: 'ID Ascending', key: '+id' }, { label: 'ID Descending', key: '-id' }],
         showReviewer: false,
         temp: {
@@ -182,6 +205,23 @@
       this.getList()
     },
     methods: {
+      cancelEditPrice(row) {
+        row.priceEdit = false;
+      },
+      confirmEditPrice(row) {
+        let query = {
+          id: row.id,
+          price: row.price
+        }
+        savePriceStrategy(query).then(response => {
+          this.$message.success(`${response.data}`)
+          this.getList()
+        })
+        row.priceEdit = false;
+      },
+      editPrice(row) {
+        row.priceEdit = true;
+      },
       handleInsert() {
         this.$router.push({path: '/strategy/edit'})
       },
@@ -190,6 +230,24 @@
           "id": id
         };
         copyStrategy(query).then(response => {
+          this.$message.success(`${response.data}`)
+          this.getList()
+        })
+      },
+      deleteStrategy(id) {
+        let query = {
+          "id": id
+        };
+        deleteStrategy(query).then(response => {
+          this.$message.success(`${response.data}`)
+          this.getList()
+        })
+      },
+      recoveryStrategy(id) {
+        let query = {
+          "id": id
+        };
+        recoveryStrategy(query).then(response => {
           this.$message.success(`${response.data}`)
           this.getList()
         })
@@ -215,11 +273,10 @@
 
       getList() {
         this.listLoading = true
-        console.log(this.listQuery)
-
         fetchList(this.listQuery).then(response => {
           this.list = response.data.list
           this.total = response.data.total
+          console.log(this.list)
 
           // Just to simulate the time of the request
           setTimeout(() => {
@@ -229,6 +286,12 @@
       },
       handleFilter() {
         this.listQuery.page = 1
+        this.listQuery.del = 1;
+        this.getList()
+      },
+      handleFilterDelete() {
+        this.listQuery.page = 1
+        this.listQuery.del = 2;
         this.getList()
       },
       handleModifyStatus(row, status) {

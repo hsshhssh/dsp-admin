@@ -39,11 +39,11 @@
         <!--</template>-->
       <!--</el-table-column>-->
 
-      <el-table-column label="价格(分)" prop="id" sortable="custom" align="center" width="100">
-        <template slot-scope="scope">
-          <span>{{ scope.row.price }}</span>
-        </template>
-      </el-table-column>
+      <!--<el-table-column label="价格(分)" prop="id" sortable="custom" align="center" width="100">-->
+        <!--<template slot-scope="scope">-->
+          <!--<span>{{ scope.row.price }}</span>-->
+        <!--</template>-->
+      <!--</el-table-column>-->
 
       <el-table-column label="创意ID" prop="id" sortable="custom" align="center" width="150">
         <template slot-scope="scope">

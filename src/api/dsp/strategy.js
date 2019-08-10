@@ -50,3 +50,27 @@ export function enableStrategy(query) {
     params : query
   })
 }
+
+export function deleteStrategy(query) {
+  return request({
+    url: '/admin/strategy/delete',
+    method: 'POST',
+    params : query
+  })
+}
+
+export function recoveryStrategy(query) {
+  return request({
+    url: '/admin/strategy/recovery',
+    method: 'POST',
+    params : query
+  })
+}
+
+export function savePriceStrategy(query) {
+  return request({
+    url: '/admin/strategy/save/price',
+    method: 'POST',
+    params : query
+  })
+}

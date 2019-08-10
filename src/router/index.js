@@ -115,6 +115,21 @@ export const constantRouterMap = [
     ]
   },
 
+  // 操作日志
+  {
+    path: '/strategy/record',
+    component: Layout,
+    redirect: '/strategy/record',
+    children: [
+      {
+        path: 'index',
+        component: () => import('@/views/strategyrecord/index'),
+        name: '操作日志',
+        meta: { title: '操作日志', icon: 'adplacement', noCache: true}
+      }
+    ]
+  },
+
   // 统计
   {
     path: '/odsBid',
