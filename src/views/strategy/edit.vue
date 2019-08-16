@@ -71,6 +71,8 @@
           v-model="temp.cityList"
           :options="cityOptions"
           :props="cityProps"
+          filterable
+          collapse-tags
           clearable></el-cascader>
       </el-form-item>
 
@@ -282,7 +284,7 @@
                 {value: "232700", label: "大兴安岭地区"}
               ]
             },
-            {value: "310000", label: "上海市", children: []},
+            {value: "310000", label: "上海市"},
             {
               value: "320000", label: "江苏省", children: [
                 {value: "320100", label: "南京市"},
@@ -512,7 +514,7 @@
                 {value: "469030", label: "琼中黎族苗族自治县"}
               ]
             },
-            {value: "500000", label: "重庆市", children: []},
+            {value: "500000", label: "重庆市"},
             {
               value: "510000", label: "四川省", children: [
                 {value: "510100", label: "成都市"},
