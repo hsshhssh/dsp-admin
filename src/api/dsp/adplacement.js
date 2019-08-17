@@ -14,5 +14,21 @@ export function sync() {
     url: '/ruangao/sync/adplacement',
     method: 'GET'
   })
+}
 
+export function fetchMediaList() {
+  return request({
+    url: '/admin/adplacement/media/list',
+    method: 'POST',
+    header:{'Content-Type':'application/json;charset=UTF-8'}
+  })
+}
+
+
+export function clearMediaList() {
+  return request({
+    url: '/admin/adplacement/media/list/clear',
+    method: 'POST',
+    header:{'Content-Type':'application/json;charset=UTF-8'}
+  })
 }

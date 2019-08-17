@@ -3,7 +3,9 @@
     <div class="filter-container" style="margin-bottom: 20px">
       <el-input placeholder="请输入计划名称" v-model="listQuery.name_like" style="width: 150px;" class="filter-item" @keyup.enter.native="handleFilter"/>
       <el-input placeholder="请输入广告名称" v-model="listQuery.adplacementname_like" style="width: 150px;" class="filter-item" @keyup.enter.native="handleFilter"/>
-      <el-input placeholder="请输入媒体名称" v-model="listQuery.medianame_like" style="width: 150px;" class="filter-item" @keyup.enter.native="handleFilter"/>
+      <el-select v-model="listQuery.mediaid" placeholder="媒体名称" filterable clearable style="width: 150px" class="filter-item" @onchange="handleFilter">
+        <el-option v-for="item in mediaOptions" :key="item.key" :label="item.display_name" :value="item.key"/>
+      </el-select>
       <el-input placeholder="请输入素材名称" v-model="listQuery.materialidname_like" style="width: 150px;" class="filter-item" @keyup.enter.native="handleFilter"/>
       <el-select v-model="listQuery.status" placeholder="不限投放状态" clearable style="width: 150px" class="filter-item" @onchange="handleFilter">
         <el-option v-for="item in statusOptions" :key="item.key" :label="item.display_name" :value="item.key"/>
@@ -12,6 +14,7 @@
       <el-button v-waves class="filter-item" type="primary" icon="el-icon-search" @click="handleFilter">搜索</el-button>
       <el-button v-waves class="filter-item" type="primary" icon="el-icon-edit" @click="handleInsert">新增</el-button>
       <el-button v-waves class="filter-item" type="primary" icon="el-icon-search" @click="handleFilterDelete">查询已删除</el-button>
+      <el-button v-waves class="filter-item" type="primary" @click="handleClearMedia">刷新媒体</el-button>
     </div>
 
     <el-table
@@ -96,6 +99,7 @@
 
 <script>
   import { fetchList, getStrategy, saveStrategy, disableStrategy, enableStrategy, copyStrategy, savePriceStrategy, deleteStrategy, recoveryStrategy} from '@/api/dsp/strategy'
+  import { fetchMediaList, clearMediaList } from '@/api/dsp/adplacement'
   import waves from '@/directive/waves' // Waves directive
   import { parseTime } from '@/utils'
   import Pagination from '@/components/Pagination' // Secondary package based on el-pagination
@@ -151,6 +155,7 @@
         importanceOptions: [1, 2, 3],
         odsTypeOptions,
         statusOptions,
+        mediaOptions: [],
         sortOptions: [{ label: 'ID Ascending', key: '+id' }, { label: 'ID Descending', key: '-id' }],
         showReviewer: false,
         temp: {
@@ -203,8 +208,22 @@
     },
     created() {
       this.getList()
+      this.getMediaList()
     },
     methods: {
+      getMediaList() {
+        this.mediaOptions = []
+        fetchMediaList().then(response => {
+          response.data.list.forEach(v => {
+            this.mediaOptions.push({
+              key: v.mediaid,
+              display_name: v.medianame
+            })
+          })
+        })
+        console.log(this.mediaOptions)
+      }
+      ,
       cancelEditPrice(row) {
         row.priceEdit = false;
       },
@@ -288,6 +307,16 @@
         this.listQuery.page = 1
         this.listQuery.del = 1;
         this.getList()
+      },
+      handleClearMedia() {
+        clearMediaList(response => {
+
+        })
+        this.getMediaList()
+        this.$message({
+          message: '操作成功',
+          type: 'success'
+        })
       },
       handleFilterDelete() {
         this.listQuery.page = 1
