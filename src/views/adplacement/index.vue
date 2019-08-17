@@ -17,9 +17,12 @@
       <el-select v-model="listQuery.status" placeholder="状态" clearable style="width: 90px" class="filter-item">
         <el-option v-for="item in statusOptions" :key="item.key" :label="item.display_name" :value="item.key"/>
       </el-select>
-      <el-input placeholder="媒体名称" v-model="listQuery.medianame_like" style="width: 100px;" class="filter-item" @keyup.enter.native="handleFilter"/>
+      <el-select v-model="listQuery.mediaid" placeholder="媒体名称" filterable clearable style="width: 150px" class="filter-item" @onchange="handleFilter">
+        <el-option v-for="item in mediaOptions" :key="item.key" :label="item.display_name" :value="item.key"/>
+      </el-select>
       <el-button v-waves class="filter-item" type="primary" icon="el-icon-search" @click="handleFilter">搜索</el-button>
       <el-button class="filter-item" style="margin-left: 10px;" type="primary" icon="el-icon-edit" @click="handleSync">手动获取广告位</el-button>
+      <el-button v-waves class="filter-item" type="primary" @click="handleClearMedia">刷新媒体</el-button>
       <el-button v-waves :loading="downloadLoading" class="filter-item" type="primary" icon="el-icon-download" @click="handleDownload" :disabled="buttonDisabled">导出</el-button>
     </div>
 
@@ -114,7 +117,7 @@
 </template>
 
 <script>
-  import { fetchListAdplacement, sync } from '@/api/dsp/adplacement'
+  import { fetchListAdplacement, sync, fetchMediaList, clearMetchList } from '@/api/dsp/adplacement'
   import { Message } from 'element-ui'
   import waves from '@/directive/waves' // Waves directive
   import { parseTime } from '@/utils'
@@ -199,6 +202,7 @@
         typedeclareOptions,
         typeOptions,
         statusOptions,
+        mediaOptions: [],
         sortOptions: [{ label: 'ID Ascending', key: '+id' }, { label: 'ID Descending', key: '-id' }],
         showReviewer: false,
         temp: {
@@ -229,6 +233,7 @@
     },
     created() {
       this.getList()
+      this.getMediaList()
     },
     methods: {
       getList() {
@@ -244,6 +249,28 @@
           setTimeout(() => {
             this.listLoading = false
           }, 0.5 * 1000)
+        })
+      },
+      getMediaList() {
+        this.mediaOptions = []
+        fetchMediaList().then(response => {
+          response.data.list.forEach(v => {
+            this.mediaOptions.push({
+              key: v.mediaid,
+              display_name: v.medianame
+            })
+          })
+        })
+        console.log(this.mediaOptions)
+      },
+      handleClearMedia() {
+        clearMediaList(response => {
+
+        })
+        this.getMediaList()
+        this.$message({
+          message: '操作成功',
+          type: 'success'
         })
       },
       handleFilter() {
