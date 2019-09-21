@@ -74,3 +74,11 @@ export function savePriceStrategy(query) {
     params : query
   })
 }
+
+export function saveBudgetStrategy(query) {
+  return request({
+    url: '/admin/strategy/save/budget',
+    method: 'POST',
+    params : query
+  })
+}

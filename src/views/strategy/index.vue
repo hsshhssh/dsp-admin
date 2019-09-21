@@ -50,6 +50,29 @@
         </template>
       </el-table-column>
 
+      <el-table-column label="预算(分)" prop="id" sortable="custom" align="center" width="150">
+        <template slot-scope="scope">
+          <template v-if="scope.row.budgetEdit">
+            <el-input v-model="scope.row.budget" class="edit-input" size="small"/>
+            <el-button size="mini" type="info" @click="cancelEditBudget(scope.row)">取消</el-button>
+            <el-button size="mini" type="success" @click="confirmEditBudget(scope.row)">确定</el-button>
+          </template>
+          <a v-else @click="editBudget(scope.row)" style="color: #1a0dab">{{ scope.row.budget }} </a>
+        </template>
+      </el-table-column>
+
+      <el-table-column label="当前消耗" prop="id" sortable="custom" align="center" width="120">
+        <template slot-scope="scope">
+          <span>{{ scope.row.cost }}</span>
+        </template>
+      </el-table-column>
+
+      <el-table-column label="总消耗" prop="id" sortable="custom" align="center" width="120">
+        <template slot-scope="scope">
+          <span>{{ scope.row.total }}</span>
+        </template>
+      </el-table-column>
+
       <el-table-column label="广告位ID" prop="id" sortable="custom" align="center" width="120">
         <template slot-scope="scope">
           <span>{{ scope.row.adplacementid }}</span>
@@ -98,7 +121,7 @@
 </template>
 
 <script>
-  import { fetchList, getStrategy, saveStrategy, disableStrategy, enableStrategy, copyStrategy, savePriceStrategy, deleteStrategy, recoveryStrategy} from '@/api/dsp/strategy'
+  import { fetchList, getStrategy, saveStrategy, disableStrategy, enableStrategy, copyStrategy, savePriceStrategy, deleteStrategy, recoveryStrategy, saveBudgetStrategy} from '@/api/dsp/strategy'
   import { fetchMediaList, clearMediaList } from '@/api/dsp/adplacement'
   import waves from '@/directive/waves' // Waves directive
   import { parseTime } from '@/utils'
@@ -224,6 +247,9 @@
         console.log(this.mediaOptions)
       }
       ,
+      editPrice(row) {
+        row.priceEdit = true;
+      },
       cancelEditPrice(row) {
         row.priceEdit = false;
       },
@@ -238,9 +264,26 @@
         })
         row.priceEdit = false;
       },
-      editPrice(row) {
-        row.priceEdit = true;
+
+      editBudget(row) {
+        row.budgetEdit = true;
       },
+      cancelEditBudget(row) {
+        row.budgetEdit = false;
+      },
+      confirmEditBudget(row) {
+        let query = {
+          id: row.id,
+          budget: row.budget
+        }
+        saveBudgetStrategy(query).then(response => {
+          this.$message.success(`${response.data}`)
+          this.getList()
+        })
+        row.budgetEdit = false;
+      },
+
+
       handleInsert() {
         this.$router.push({path: '/strategy/edit'})
       },
